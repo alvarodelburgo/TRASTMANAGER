@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>Recuperar Contraseña - Trast Manager</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="/assets/icono.png">
+        <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+        <script src="../js/validation.js"></script>
+        <link rel="stylesheet" href="../css/styles.css" />
+    </head>
+    <body>
+        <div class="card">
+            <h2>Recupera tu contraseña</h2>
+            <h3>Introduzca su correo electrónico para continuar con el proceso de recuperación de la contraseña.</h3>
+            <form class="form" action="/recovery" method="POST">
+                <input type="email" name="email" id="recoveryEmail" onBlur="validateRecoveryEmail()" placeholder="Correo electrónico" required autocomplete="email">
+                <div id="EmailRecoveryError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+                <button type="submit"> Recuperar contraseña </button>
+            </form>
+        </div>
+    </body>
+</html>

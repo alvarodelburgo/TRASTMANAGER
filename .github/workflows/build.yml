@@ -1,0 +1,300 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Preparar los archivos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configurar las credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Instalar dependencias
+        run: |
+          cd server
+          npm install
+
+      - name: Comprimir client y server
+        run: |
+          zip -r client.zip client
+          zip -r server.zip server
+
+      - name: Subir archivos ZIP a S3
+        run: |
+          aws s3 cp client.zip s3://bucket-data-242201299422/client.zip
+          aws s3 cp server.zip s3://bucket-data-242201299422/server.zip
+
+  infraestructure:
+    name: Crear la infraestructura
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configurar las credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Setup Terraform
+        env:
+          TF_VERSION: '1.8.0'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: ./iac
+        run: |
+
+          terraform init
+
+          # Escribir la clave privada en un archivo
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ${{ github.workspace }}/private_key
+          chmod 600 ${{ github.workspace }}/private_key
+
+      - name: Terraform Plan
+        working-directory: ./iac
+        run: |
+          
+          terraform plan \
+            -var "ami_id=${{ secrets.EC2_AMI_ID }}" \
+            -var "key_name=${{ secrets.EC2_KEY_NAME }}" \
+            -var "ssh_private_key_path=${{ github.workspace }}/private_key" \
+            -var "subnet_id=${{ secrets.EC2_SUBNET_ID }}" \
+            -var "subnet_id_2=${{ secrets.EC2_SUBNET_ID_2 }}" \
+            -var "acm_certificate_arn=${{ secrets.ARN }}" \
+            -var "vpc_id=${{ secrets.VPC_ID }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./iac
+        run: |
+
+          terraform apply -auto-approve tfplan
+        
+        env:
+          TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Get Terraform Output
+        working-directory: ./iac
+        id: tf-output
+        run: |
+          echo "EC2_PUBLIC_DNS_1=$(terraform output -raw ec2_instance_1_public_dns)" >> $GITHUB_OUTPUT
+          echo "EC2_PUBLIC_DNS_2=$(terraform output -raw ec2_instance_2_public_dns)" >> $GITHUB_OUTPUT
+          # Debug para verificar los valores
+          echo "DNS obtenido para instancia 1: $(terraform output -raw ec2_instance_1_public_dns)"
+          echo "DNS obtenido para instancia 2: $(terraform output -raw ec2_instance_2_public_dns)"
+        
+      - name: Store EC2 DNS as Secret (Instance 1)
+        uses: gliech/create-github-secret-action@v1
+        with:
+          name: EC2_PUBLIC_DNS_1
+          value: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_1 }}
+          pa_token: ${{ secrets.TOKEN_GITHUB }}
+          
+      - name: Store EC2 DNS as Secret (Instance 2)
+        uses: gliech/create-github-secret-action@v1
+        with:
+          name: EC2_PUBLIC_DNS_2
+          value: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_2 }}
+          pa_token: ${{ secrets.TOKEN_GITHUB }}
+        
+      - name: Print Secrets to a Safe Environment
+        run: |
+          echo "EC2_PUBLIC_DNS_1: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_1 }}" >> secrets_output.txt
+          echo "EC2_PUBLIC_DNS_2: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_2 }}" >> secrets_output.txt
+
+      - name: Upload Secrets Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: secrets-output
+          path: secrets_output.txt
+    
+    outputs:
+      ec2_dns_1: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_1 }}
+      ec2_dns_2: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_2 }}
+
+  deploy:
+    name: Desplegar la aplicación
+    needs: infraestructure
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configurar las credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+
+      - name: Connect to EC2 Instances via SSH
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          USER: ubuntu
+          HOST_1: ${{ needs.infraestructure.outputs.ec2_dns_1 }}
+          HOST_2: ${{ needs.infraestructure.outputs.ec2_dns_2 }}
+        run: |
+          # Comprobar que las IPs no estén vacías
+          if [ -z "$HOST_1" ]; then
+            echo "Error: No se pudo obtener la IP de la instancia EC2 1."
+            exit 1
+          fi
+
+          if [ -z "$HOST_2" ]; then
+            echo "Error: No se pudo obtener la IP de la instancia EC2 2."
+            exit 1
+          fi
+
+          # Configurar la clave privada para el acceso SSH
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem  # Asegúrate de que los permisos sean correctos
+
+          # Conectarse a la primera instancia EC2 usando SSH
+          echo "Conectándose a la instancia EC2 1 en $HOST_1..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem "$USER"@"$HOST_1" "echo 'Conectado a la instancia 1'" || { echo 'Falló la conexión a la instancia 1'; exit 1; }
+
+          # Conectarse a la segunda instancia EC2 usando SSH
+          echo "Conectándose a la instancia EC2 2 en $HOST_2..."
+          ssh -o StrictHostKeyChecking=no -i private_key.pem "$USER"@"$HOST_2" "echo 'Conectado a la instancia 2'" || { echo 'Falló la conexión a la instancia 2'; exit 1; }
+
+          # Limpiar la clave privada
+          rm private_key.pem
+
+      - name: Ejecutar comandos en ambas instancias
+        env:
+          USER: ubuntu
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+
+          echo $AWS_ACCESS_KEY_ID
+          echo $AWS_SECRET_ACCESS_KEY
+
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Usar directamente los outputs del job infraestructure
+          HOST1="${{ needs.infraestructure.outputs.ec2_dns_1 }}"
+          HOST2="${{ needs.infraestructure.outputs.ec2_dns_2 }}"
+          
+          echo "HOST1: $HOST1"
+          echo "HOST2: $HOST2"
+          
+          # Verificar que los hosts no estén vacíos
+          if [[ -z "$HOST1" || -z "$HOST2" ]]; then
+            echo "Error: Una o ambas direcciones DNS están vacías"
+            exit 1
+          fi
+
+          for HOST in "$HOST1" "$HOST2"; do
+            echo "Conectando a $HOST..."
+            echo "-----------------------------"
+            
+            ssh -o StrictHostKeyChecking=no -i private_key.pem "$USER@$HOST" << EOF
+              echo "Conexión SSH exitosa en $(hostname)"
+
+              echo $AWS_REGION
+
+              # Instalar aws-cli si no está instalado
+              if ! command -v aws &> /dev/null; then
+                  sudo apt update -qq >/dev/null 2>&1
+                  sudo apt install -y unzip curl -qq >/dev/null 2>&1
+
+                  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" >/dev/null 2>&1
+                  unzip awscliv2.zip >/dev/null 2>&1
+                  sudo ./aws/install >/dev/null 2>&1
+                  aws --version
+
+                  echo "-----------------------------"
+                  echo "AWS CLI INSTALADO"
+
+                  # Configurar AWS CLI
+                  echo "Configurando AWS CLI..."
+
+                  aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+                  aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+                  aws configure set default.region "eu-west-1"
+                  aws configure set output "json"
+
+                  aws configure list
+
+                  echo "AWS CLI configurado con éxito."
+              fi
+
+              aws s3 ls s3://bucket-data-242201299422/
+
+              # Descargar archivos desde S3
+              aws s3 cp s3://bucket-data-242201299422/client.zip /home/ubuntu
+              aws s3 cp s3://bucket-data-242201299422/server.zip /home/ubuntu
+
+              # Descomprimir
+              unzip -o /home/ubuntu/client.zip -d /home/ubuntu >/dev/null 2>&1
+              unzip -o /home/ubuntu/server.zip -d /home/ubuntu >/dev/null 2>&1
+              rm -f /home/ubuntu/client.zip /home/ubuntu/server.zip
+
+              echo "-----------------------------"
+              echo "Archivos descomprimidos."
+
+              # Instalar Node.js y npm si no están instalados
+              if ! command -v node &> /dev/null; then
+                curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash -
+                sudo apt install -y nodejs >/dev/null 2>&1
+                
+                echo "-----------------------------"
+                echo "NODE Y NPM INSTALADOS"
+              fi
+
+              # Instalar PM2 si no está instalado
+              if ! command -v pm2 &> /dev/null; then
+                sudo npm install pm2@latest -g >/dev/null 2>&1
+
+                echo "-----------------------------"
+                echo "PM2 INSTALADO"
+              fi
+
+              # Iniciar la aplicación con PM2
+              if [[ -d "/home/ubuntu/server" ]]; then
+                cd /home/ubuntu/server
+                pm2 start app.js || pm2 restart app.js
+              else
+                echo "Error: El directorio /home/ubuntu/server no existe"
+                exit 1
+              fi
+          EOF
+
+              if [[ $? -ne 0 ]]; then
+                echo "Error: Falló la conexión SSH o ejecución de comandos en $HOST"
+                exit 1
+              fi
+            done
+
+      - name: Clean up SSH key
+        run: |
+          rm -f ~/.ssh/id_rsa
+          rm -f ~/.ssh/known_hosts

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Registro Empresa - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/validation.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="owner-register-container">
+      <nav>
+        <div class="nav-container">
+          <div class="nav-column" id="profile-image"></div>
+          
+          <div class="nav-column" id="main-column">
+            <a href="/home"><img src="/assets/LOGO-NEGRO.png" alt="Profile Image"></a>
+          </div>
+            
+          <div class="nav-column" id="tools-column">
+            <ul>
+              <li><a href="/contact" class="contact-link">Contacto</a></li>
+              <li><a href="/logout" class="logout-link">Cerrar sesión</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
+      <header>
+        <div id="notification2"></div>
+      </header>
+
+      <div class="register-card">
+        <h2>Registro de Empresa</h2>
+        <h3>Introduzca sus datos</h3>
+        <form class="register-form" id="enterprise_register_form" action="/enterprise_register" enctype="multipart/form-data" method="POST">
+    
+          <div class="basic-info">
+            <h4>Información Básica *</h4>
+            <input type="text" name="name" placeholder="Nombre de la empresa" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" required autocomplete="organization"/>
+            <div id="passwordError" class="error-message">El nombre no tiene el formato correcto</div>
+    
+            <input type="text" name="address" placeholder="Dirección" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ0-9 ]+$" required autocomplete="street-address"/>
+            <div id="passwordError" class="error-message">La dirección no tiene el formato correcto</div>
+    
+            <input type="text" name="username" placeholder="Nombre de usuario" pattern="^[A-Za-z0-9-_.]+$" required autocomplete="username"/>
+            <div id="passwordError" class="error-message">El nombre de usuario no tiene el formato correcto</div>
+          </div>
+    
+          <div class="login-info">
+            <h4>Información Login *</h4>
+            <div class="login-info2">
+              <div>
+                <input type="email" name="email" id="enterpriseEmail" onBlur="validateEnterpriseEmail()" placeholder="Correo electrónico" required autocomplete="email"/>        
+                <div id="EmailEnterpriseError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+              </div>
+                   
+              <div class="password-DIV">
+                    
+                <div class="password-container">
+                  <input type="password" name="password" id="passwordInput" placeholder="Contraseña" required autocomplete="off"/>
+                  <span class="register-toggle-password" alt="Mostrar contraseña" onclick="togglePassword()" ><img src="/assets/ojo-cerrado.png" id="togglePassword"/></span>
+                </div>
+
+                <div class="help-icon-container">
+                  <span class="help-icon" aria-label="Información de la contraseña">?</span>
+                  <div class="help-text">
+                    La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula, 1 minúscula, números y símbolos.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+            
+          <div class="sensitive-info">
+            <h4>Información Sensible *</h4>
+              
+            <div class="sensitive-info2">
+      
+              <div>
+                <input type="text" name="phone_number" placeholder="Teléfono" pattern="([0-9]{9})" required autocomplete="tel"/>
+                <div id="passwordError" class="error-message">El teléfono no tiene el formato correcto</div>
+              </div>
+    
+              <div>
+                <input type="text" name="cif" id="cif" onBlur="validateCIF()" placeholder="CIF" required autocomplete="off"/>
+                <div id="cifError" class="error-message">El CIF no tiene el formato correcto</div>
+              </div>
+                
+              <div>
+                <input type="text" name="bank_account" id="bank_account" onBlur="validarIBAN()" placeholder="Cuenta Bancaria" required autocomplete="off"/>
+                <div id="IbanError" class="error-message">La cuenta bancaria no tiene el formato correcto</div>
+              </div>
+                
+              <div>
+                <input type="text" name="role" value="enterprise" placeholder="Empresa" readonly/>
+              </div>
+              
+              <div class="register-dropzone2">
+                <span>Subir imagen de perfil</span>
+                <input type="file" name="profile_image" accept=".jpg, .jpeg, .png, .gif" title="Subir imagen de perfil">
+              </div>
+              <div id="passwordError" class="error-message">No se ha subido una imagen con el formato correcto</div>
+            </div>
+            </div>
+            <button type="submit">Registrar</button>
+        </form>
+      </div>
+
+      <footer></footer>
+    </div>
+    <script>
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        cargarImagenDePerfil();
+        handleNotification();
+        token_user();
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+          const form = document.getElementById("enterprise_register_form");
+
+          form.addEventListener("submit", function (event) {
+            if (!validateCIF()) {
+              event.preventDefault(); // Evita que el formulario se envíe
+            }
+            if (!validarIBAN()) {
+              event.preventDefault(); // Evita el envío si el IBAN no es válido
+            }
+          });
+        });
+
+    </script>
+  </body>
+</html>

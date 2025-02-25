@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Inicio de Sesión - Trast Manager</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="/assets/icono.png">
+        <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+        <script src="../js/notification.js"></script>
+        <script src="../js/validation.js"></script>
+        <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+
+    <div class="login-container">
+      <header>
+      </header>
+
+      <header>
+        <div id="notification2"></div>
+      </header>
+      
+      <div class="card">
+
+        <h2>Inicio de Sesión</h2>
+        <h3>Introduzca sus credenciales</h3>
+        <form class="form" action="/login" method="POST" id="loginForm">
+      
+          <div class="login-email-container">
+            <input type="email" name="email" id="loginEmail" onBlur="validateLoginEmail()" placeholder="Correo electrónico" required autocomplete="email"/>
+            <div id="EmailLoginError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+          </div>
+          
+          <div class="password-container">
+            <div class="input-container">
+              <input type="password" id="passwordInput" name="password" placeholder="Contraseña" required autocomplete="off"/>
+              <span class="toggle-password" alt="Mostrar contraseña" onclick="togglePassword()" ><img src="/assets/ojo-cerrado.png" id="togglePassword"/></span>
+            </div>
+          </div>
+          
+          <a href="/recovery">¿Has olvidado tu contraseña?</a>
+          
+          <button type="submit">Inicia sesión</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          handleNotification();
+      });
+  </script>
+  </body>
+</html>

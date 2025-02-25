@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Crear Cliente - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/validation.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="owner-register-container">
+      <nav>
+        <div class="nav-container">
+          <div class="nav-column" id="profile-image"></div>
+            
+          <div class="nav-column" id="main-column">
+            <a href="/home"><img src="/assets/LOGO-NEGRO.png" alt="Profile Image"></a>
+          </div>
+            
+          <div class="nav-column" id="tools-column">
+            <ul>
+              <li><a href="/contact" class="contact-link">Contacto</a></li>
+              <li><a href="/logout" class="logout-link">Cerrar sesión</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <header>
+        <div id="notification2"></div>
+      </header>
+
+      <div class="card">
+        <h2>Registro de Clientes</h2>
+        <h3>Introduzca sus datos</h3>
+        <form class="register-form2" id="tenant_register_form" action="/create_tenant" method="POST">
+    
+          <div class="basic-info">
+            <h4>Información Básica *</h4>
+            <input type="text" name="name" placeholder="Nombre" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" required autocomplete="name"/>
+            <div id="passwordError" class="error-message">El nombre no tiene el formato correcto</div>
+
+            <input type="text" name="enterprise_id" placeholder="Nº Emp." pattern="^[0-9]*$" />
+            <div id="passwordError" class="error-message">El número no tiene el formato correcto</div>
+    
+            <input type="text" name="lastname" placeholder="Apellidos" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" required autocomplete="family-name"/>
+            <div id="passwordError" class="error-message">El apellido no tiene el formato correcto</div>
+
+            <input type="text" name="owner_id" placeholder="Nº Prop." pattern="^[0-9]*$" />
+            <div id="passwordError" class="error-message">El número no tiene el formato correcto</div>
+                
+            <input type="email" name="email" id="tenantEmail" onBlur="validateTenantEmail()" placeholder="Correo electrónico" required autocomplete="email"/>        
+            <div id="EmailTenantError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+
+          </div>
+
+          <div class="sensitive-info">
+            <h4>Información Sensible *</h4>
+
+            <input type="text" name="phone_number" placeholder="Teléfono (123456789)" pattern="([0-9]{9})" required autocomplete="tel"/>
+            <div id="passwordError" class="error-message">El teléfono no tiene el formato correcto</div>
+             
+            <input type="text" name="dni" id="dni" onBlur="validateDNI()" placeholder="DNI" required autocomplete="off"/>
+            <div id="passwordError" class="error-message">El DNI no tiene el formato correcto</div>
+
+            <input type="text" name="bank_account" id="bank_account" onBlur="validateBankAccount()" placeholder="Cuenta Bancaria (ES12..)" required autocomplete="off"/>
+            <div id="passwordError" class="error-message">La cuenta bancaria no tiene el formato correcto</div>
+        
+          </div>
+        
+          <div>
+              <button type="submit" class="register-button" >Registrar</button>
+          </div>
+          </form>
+        </div>
+        <footer></footer>
+      </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          cargarImagenDePerfil();
+          handleNotification();
+          token_user();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const form = document.getElementById("tenant_register_form");
+
+          form.addEventListener("submit", function (event) {
+            if (!validateDNI()) {
+              event.preventDefault(); // Evita que el formulario se envíe
+            }
+            if (!validarIBAN()) {
+              event.preventDefault(); // Evita el envío si el IBAN no es válido
+            }
+          });
+        });
+      </script>
+  </body>
+</html>

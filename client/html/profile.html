@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Perfil - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="profile-container">
+
+      <header id="header-invoice">
+          <div class="home-icon">
+            <a href="/home"><img src="/assets/LOGO-NEGRO.png" alt="Profile Image"></a>
+          </div>
+      </header>
+
+      <header id="header-notification">
+        <div id="notification2"></div>
+      </header>
+
+      <main class="card-container" id="main-profile">
+        <h2 class="h2" id="profile-title">Tu perfil</h2>
+        <div class="profile-card">
+       
+          <div class="image-container" id="profile-image2"></div>
+          <div class="name-container" id="name-container-profile"></div>
+          <div class="about-container" id="about-container-profile"></div>
+          
+          <div class="profile-tools" id="profile-tools">
+            <a href="/edit_profile" id="editProfileLink">Editar perfil</a>
+            <a id="btnCopyUrl">Compartir</a>
+          </div>
+          
+          <div class="urlContainer" id="urlContainer"></div>
+          <div id="copyMessage" class="copy-message">URL copiada al portapapeles</div>
+          
+          <div class="offers-container" id="offers-container"></div>
+          
+        </div>
+      </main>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', async function () {
+        cargarDatosDePerfil();
+        clipboard();
+        handleNotification();
+    
+        async function visualizacion() {
+          try {
+            const response = await fetch('/api-data');
+            if (!response.ok) {
+              throw new Error('No se pudo obtener la información');
+            }
+    
+            // Obtener los datos cifrados y las claves de la respuesta
+            const { encryptedData, key, iv } = await response.json();
+    
+            // Descifrar los datos recibidos
+            const data = await decryptData(encryptedData, key, iv);
+
+            // Extraer los valores de role y viewing
+            const role = data.role;
+            const viewing = data.viewing;
+    
+            // Validar condiciones después de obtener los datos
+            if (role === 'administrator' && viewing === 'withoutloggingin' || role === 'owner' && viewing === 'withoutloggingin' ||role === 'enterprise' && viewing === 'withoutloggingin') {
+              console.log('No se carga el toke_user');
+            }
+            else{
+              token_user();
+            }
+          } catch (error) {
+            console.error('Error al cargar los datos:', error.message);
+          }
+        }
+    
+        // Llamar a la función visualización
+        await visualizacion();
+      });
+    </script>
+    
+  </body>
+</html>

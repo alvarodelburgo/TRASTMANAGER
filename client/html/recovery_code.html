@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>Introducir código - Trast Manager</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="/assets/icono.png">  
+        <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+        <script src="../js/validation.js"></script>
+        <link rel="stylesheet" href="../css/styles.css" />
+    </head>
+    <body>
+        <div class="card">
+            <h2>Recupera tu contraseña</h2>
+            <h3>Introduce el código enviado a tu correo electrónico</h3>
+
+            <form action="/recovery_code" method="POST" class="form">
+                <div class="code">
+                    <input type="text" name="digit1" maxlength="1" oninput="handleInput(this, 'digit2', null, event)" onkeydown="handleInput(this, 'digit2', null, event)" onpaste="handlePaste(event, 'digit1')" required>
+                    <input type="text" name="digit2" maxlength="1" oninput="handleInput(this, 'digit3', 'digit1', event)" onkeydown="handleInput(this, 'digit3', 'digit1', event)" onpaste="handlePaste(event, 'digit2')" required>
+                    <input type="text" name="digit3" maxlength="1" oninput="handleInput(this, 'digit4', 'digit2', event)" onkeydown="handleInput(this, 'digit4', 'digit2', event)" onpaste="handlePaste(event, 'digit3')" required>
+                    <input type="text" name="digit4" maxlength="1" oninput="handleInput(this, 'digit5', 'digit3', event)" onkeydown="handleInput(this, 'digit5', 'digit3', event)" onpaste="handlePaste(event, 'digit4')" required>
+                    <input type="text" name="digit5" maxlength="1" oninput="handleInput(this, 'digit6', 'digit4', event)" onkeydown="handleInput(this, 'digit6', 'digit4', event)" onpaste="handlePaste(event, 'digit5')" required>
+                    <input type="text" name="digit6" maxlength="1" oninput="handleInput(this, null, 'digit5', event)" onkeydown="handleInput(this, null, 'digit5', event)" onpaste="handlePaste(event, 'digit6')" required>                    
+                </div>
+                <button type="submit">Enviar código</button>
+            </form>
+        </div>
+    </body>
+</html>

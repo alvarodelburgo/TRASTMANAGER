@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Registro Propietario - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/validation.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="owner-register-container">
+      <nav>
+        <div class="nav-container">
+          <div class="nav-column" id="profile-image"></div>
+            
+          <div class="nav-column" id="main-column">
+            <a href="/home"><img src="/assets/LOGO-NEGRO.png" alt="Profile Image"></a>
+          </div>
+            
+          <div class="nav-column" id="tools-column">
+            <ul>
+              <li><a href="/contact" class="contact-link">Contacto</a></li>
+              <li><a href="/logout" class="logout-link">Cerrar sesión</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <header>
+        <div id="notification2"></div>
+      </header>
+
+      <div class="register-card">
+        <h2>Registro de Propietario</h2>
+        <h3>Introduzca sus datos</h3>
+        <form class="register-form" id="owner_register_form" action="/owner_register" method="POST" enctype="multipart/form-data">
+    
+          <div class="basic-info">
+            <h4>Información Básica *</h4>
+            <input type="text" name="name" placeholder="Nombre" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" required autocomplete="name"/>
+            <div id="passwordError" class="error-message">El nombre no tiene el formato correcto</div>
+    
+            <input type="text" name="lastname" placeholder="Apellidos" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" required autocomplete="family-name"/>
+            <div id="passwordError" class="error-message">El apellido no tiene el formato correcto</div>
+    
+            <input type="text" name="username" placeholder="Nombre de usuario" pattern="^[A-Za-z-_.]+$" required autocomplete="username"/>
+            <div id="passwordError" class="error-message">El nombre de usuario no tiene el formato correcto</div>
+          </div>
+
+          <div class="login-info">
+            <h4>Información Login *</h4>
+            <div class="login-info2">
+              <div>
+                <input type="email" name="email" id="ownerEmail" onBlur="validateOwnerEmail()" placeholder="Correo electrónico" required autocomplete="email"/>        
+                <div id="EmailOwnerError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+              </div>
+                    
+              <div class="password-DIV">
+                    
+                <div class="password-container">
+                  <input type="password" name="password" id="passwordInput" placeholder="Contraseña" required autocomplete="off"/>
+                  <span class="register-toggle-password" alt="Mostrar contraseña" onclick="togglePassword()" ><img src="/assets/ojo-cerrado.png" id="togglePassword"/></span>
+                </div>
+
+                <div class="help-icon-container" required>
+                  <span class="help-icon" aria-label="Información de la contraseña">?</span>
+                  <div class="help-text">
+                    La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula, 1 minúscula, números y símbolos.
+                  </div>
+                </div>
+              </div>
+             </div>
+          </div>
+            
+          <div class="sensitive-info">
+            <h4>Información Sensible *</h4>
+            <div class="sensitive-info2">
+        
+              <div>
+                <input type="text" name="phone_number" placeholder="Teléfono" pattern="([0-9]{9})" required autocomplete="tel"/>
+                <div id="passwordError" class="error-message">El teléfono no tiene el formato correcto</div>
+              </div>
+      
+              <div>
+                <input type="text" name="dni" id="dni" onBlur="validateDNI()" placeholder="DNI" required autocomplete="off"/>
+                <div id="DNIError" class="error-message">El dni no tiene el formato correcto</div>
+              </div>
+                  
+              <div>
+                <input type="text" name="bank_account" id="bank_account" onBlur="validarIBAN()" placeholder="Cuenta Bancaria" required autocomplete="off"/>
+                <div id="IbanError" class="error-message">La cuenta bancaria no tiene el formato correcto</div>
+              </div>
+                  
+              <div>
+                <input type="text" name="role" value="owner" placeholder="propietario" readonly/>
+              </div>
+              
+              <div class="register-dropzone2">
+                <span>Subir imagen de perfil</span>
+                <input type="file" name="profile_image" accept=".jpg, .jpeg, .png, .gif" title="Subir imagen de perfil">
+              </div>
+              
+              <div id="passwordError" class="error-message">No se ha subido una imagen con el formato correcto</div>
+      
+            </div>
+          </div>
+          <button type="submit" >Registrar</button>
+        </form>
+      </div>
+
+      <footer></footer>
+    </div>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+          cargarImagenDePerfil();
+          handleNotification();
+          token_user();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const form = document.getElementById("owner_register_form");
+
+          form.addEventListener("submit", function (event) {
+            if (!validateDNI()) {
+              event.preventDefault(); // Evita que el formulario se envíe
+            }
+            if (!validarIBAN()) {
+              event.preventDefault(); // Evita el envío si el IBAN no es válido
+            }
+          });
+        });
+    
+    </script>
+  </body>
+</html>

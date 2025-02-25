@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Gestión del Local - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="owner-container">
+      <nav>
+            <div class="nav-container">
+              <div class="nav-column" id="profile-image"></div>
+
+              <div class="nav-column-premises1" id="main-column"> </div>
+                
+              <div class="nav-column" id="tools-column">
+                <ul>
+                  <li><a href="/contact" class="contact-link">Contacto</a></li>
+                  <li><a href="/logout" class="logout-link">Cerrar sesión</a></li>
+                </ul>
+              </div>
+          </div>
+      </nav>
+
+      <header>
+        <div id="notification2"></div>
+      </header>
+
+      <aside>
+        <div id="above-content" class="aside_premises"></div>
+      </aside>
+  
+      <main id="manage-premises-container" class="manage-premises-container">
+        <div id="manage-premises-div" class="manage-premises-div"></div>
+      </main>
+        
+      <footer></footer>
+  
+      </div>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              cargarImagenDePerfil();
+              const premisesId = window.location.pathname.split('/').pop();
+              manage_premises(parseInt(premisesId, 10));
+              handleNotification();
+              token_user();
+          });
+      </script>
+    </body>
+</html>

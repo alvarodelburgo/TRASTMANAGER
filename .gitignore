@@ -1,0 +1,4 @@
+server/node_modules
+iac/terraform.tfvars
+server/.env
+scripts

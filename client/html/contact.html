@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Contacto - Trast Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/icono.png">
+    <link href="https://db.onlinewebfonts.com/c/12ff62164c9778917bddb93c6379cf47?family=Aeonik+Pro+Regular" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-abc123..." crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/llamada_socket.js"></script>
+    <script src="../js/notification.js"></script>
+    <script src="../js/script.js"></script>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="contact-profile-container2">
+
+      <header class="contact-header">
+        <div class="home-icon">
+          <a href="/home"><img src="/assets/LOGO-NEGRO.png" alt="Profile Image"></a>
+        </div>
+      </header>
+
+      <header class="contact-notification">
+        <div id="notification2"></div>
+      </header>
+      
+      <header class="contact-title">
+        <div class="contact-info-header">
+          <h2>Contacto</h2>
+        </div> 
+      </header>
+    
+      <div class="contact-aside-container">
+        <aside class="sidebar-left" id="main-content">
+          <div class="contact-info-section">
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fas fa-home"></i>
+              </div>
+
+              <div class="contact-info-content">
+                <h4>Dirección</h4>
+                <p>C. de Juan Hurtado de Mendoza, 4<br /> Chamartín, 28036 Madrid </p>
+              </div>
+            </div>
+
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+
+              <div class="contact-info-content">
+                <h4>Teléfono</h4>
+                <p>123456789</p>
+              </div>
+            </div>
+
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+
+              <div class="contact-info-content">
+                <h4>Email</h4>
+                <p>
+                  <span>soporte.trastmanager</span>
+                  <span>@gmail.com</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+        <aside class="sidebar-right">
+          <div class="message-card">
+            <h2>¡Contacta con nosotros!</h2>
+            <form class="form" action="/contact" method="POST">
+              
+              <input type="text" name="full_name" placeholder="Alvaro Del Burgo Pérez" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$" />
+              <div id="passwordError" class="error-message">El nombre no tiene el formato correcto</div>
+      
+              <input type="email" name="email" placeholder="Correo electrónico" pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" />
+              <div id="passwordError" class="error-message">El correo electrónico no tiene el formato correcto</div>
+      
+              <input type="text" name="subject" placeholder="Asunto" pattern="^[A-Za-záéíóúÁÉÍÓÚñÑüÜ0-9 ]+$" />
+              <div id="passwordError" class="error-message">El asunto no tiene el formato correcto</div>
+      
+              <textarea id="message" name="message" rows="5" placeholder="Mensaje" required></textarea>
+      
+              <button type="submit">Enviar</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          handleNotification();
+          token_user();
+      });
+  </script>
+  </body>
+</html>
