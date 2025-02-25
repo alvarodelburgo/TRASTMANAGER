@@ -119,17 +119,6 @@ jobs:
           name: EC2_PUBLIC_DNS_2
           value: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_2 }}
           pa_token: ${{ secrets.TOKEN_GITHUB }}
-        
-      - name: Print Secrets to a Safe Environment
-        run: |
-          echo "EC2_PUBLIC_DNS_1: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_1 }}" >> secrets_output.txt
-          echo "EC2_PUBLIC_DNS_2: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_2 }}" >> secrets_output.txt
-
-      - name: Upload Secrets Output
-        uses: actions/upload-artifact@v4
-        with:
-          name: secrets-output
-          path: secrets_output.txt
     
     outputs:
       ec2_dns_1: ${{ steps.tf-output.outputs.EC2_PUBLIC_DNS_1 }}
