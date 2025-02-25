@@ -186,11 +186,6 @@ resource "aws_lb_listener" "https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.app_target_group.arn
-    fixed_response {
-      status_code = 200
-      content_type = "text/plain"
-      message_body = "Hello, HTTPS!"
-    }
   }
 }
 
@@ -209,4 +204,3 @@ resource "aws_lb_listener" "http" {
     }
   }
 }
-
