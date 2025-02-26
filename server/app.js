@@ -41,14 +41,6 @@ app.use(express.json());
 // Middleware para analizar cuerpos de solicitudes en formato URL-encoded
 app.use(express.urlencoded({ extended: true }));
 
-// CORS PARA LOCALHOST
-// const corsOptions = {
-//   origin: ['http://localhost:5000', 'http://192.168.1.43:5000'],
-//   optionsSuccessStatus: 200,
-//   credentials: true
-// };
-// app.use(cors(corsOptions));
-
 // RUTAS
 const api_data = require('./routes/api_data');
 const data_user = require('./routes/data_user');
@@ -64,16 +56,13 @@ const recovery_newpassword_route = require('./routes/recovery_newpassword_route'
 const home_route = require('./routes/home_route');
 const contact_route = require('./routes/contact_route');
 
-
 const edit_profile_route = require('./routes/edit_profile_route');
 const update_profile_route = require('./routes/update_profile_route');
-
 
 const edit_premises_route = require('./routes/edit_premises_route');
 const manage_premises_route = require('./routes/manage_premises_route');
 const manage_warehouse_route = require('./routes/manage_warehouse_route');
 const edit_warehouse_route = require('./routes/edit_warehouse_route');
-
 
 const owner_register_route = require('./routes/owner_register_route');
 const enterprise_register_route = require('./routes/enterprise_register_route');
@@ -113,7 +102,6 @@ const show_premises_data_route = require('./routes/show_premises_data_route');
 const show_offer_data_route = require('./routes/show_offer_data_route');
 const show_invoice_data_route = require('./routes/show_invoice_data_route');
 
-
 const upload_file_route = require('./routes/upload_file_route');
 const upload_offer_route = require('./routes/upload_offer_route');
 
@@ -130,7 +118,6 @@ app.use(recovery_newpassword_route);
 app.use(home_route);
 app.use(contact_route);
 
-
 app.use(edit_profile_route);
 app.use(update_profile_route);
 
@@ -138,7 +125,6 @@ app.use(edit_premises_route);
 app.use(manage_premises_route);
 app.use(manage_warehouse_route);
 app.use(edit_warehouse_route);
-
 
 app.use(owner_register_route);
 app.use(enterprise_register_route);
@@ -181,7 +167,6 @@ app.use(show_invoice_data_route);
 app.use(upload_file_route);
 app.use(upload_offer_route);
 
-
 // USAMOS LAS RUTAS DE LA API
 app.use(api_data);
 app.use(data_user);
@@ -189,7 +174,6 @@ app.use(renew_token);
 
 // MIDDLEWARE QUE MANEJA LOS ERRORES 404
 app.use(notFound_middleware);
-
 
 // Evento de conexión de Socket.IO
 io.on('connection', (socket) => {

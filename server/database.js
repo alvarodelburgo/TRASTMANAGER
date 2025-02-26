@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-require('dotenv').config(); // Carga las variables del .env
+//require('dotenv').config(); // Carga las variables del .env
 
 // Conexión para 'trastmanager' database
 const tm_connection_db = new Sequelize(

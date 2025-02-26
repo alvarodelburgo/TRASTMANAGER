@@ -45,11 +45,11 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Permitir conexion a puerto 8000
+  # Permitir conexion a puerto 5000
   ingress {
-    description = "TCP desde 8000"
-    from_port   = 8000
-    to_port     = 8000
+    description = "TCP desde 5000"
+    from_port   = 5000
+    to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -139,6 +139,43 @@ resource "aws_lb" "app_lb" {
   }
 }
 
+# 1.1. Crear un grupo de seguridad para el Load Balancer
+resource "aws_security_group" "lb_sg" {
+  name        = "LoadBalancer-IRL-sg"
+  description = "Grupo de seguridad para el Load Balancer"
+
+  # Permitir HTTP
+  ingress {
+    description = "HTTP desde cualquier lugar"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Permitir HTTPS
+  ingress {
+    description = "HTTPS desde cualquier lugar"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Salida para todo el tráfico
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.instance_name}-sg"
+  }
+}
+
+
 # 2. Crear un Target Group para el ALB
 resource "aws_lb_target_group" "app_target_group" {
   name     = "app-target-group"
@@ -192,7 +229,7 @@ resource "aws_lb_listener" "https" {
 # 5. Crear un listener HTTP (puerto 80) y redirigir a HTTPS
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
-  port              = 80
+  port              = 5000
   protocol          = "HTTP"
 
   default_action {
