@@ -1,4 +1,4 @@
-require('dotenv').config(); // Cargar variables de entorno
+//require('dotenv').config(); // Cargar variables de entorno
 const { exec } = require('child_process');
 
 // Configuración de la base de datos

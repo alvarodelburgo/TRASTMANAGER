@@ -1,4 +1,4 @@
-require('dotenv').config();
+//require('dotenv').config();
 const { exec, spawnSync } = require('child_process');
 const cron = require('node-cron');
 

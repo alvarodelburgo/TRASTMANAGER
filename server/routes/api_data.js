@@ -15,7 +15,7 @@ const Invoice = require('../models/invoice');
 const CryptoJS = require('crypto-js');
 
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+//require('dotenv').config();
 router.use(cookieParser());
 
 router.get('/api-data', (req, res) => {

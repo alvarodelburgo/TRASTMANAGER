@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
 const Owner = require('../models/owner');
 const Enterprise = require('../models/enterprise');
-require('dotenv').config();
+//require('dotenv').config();
 
 
 // Definir las validaciones para los campos del formulario

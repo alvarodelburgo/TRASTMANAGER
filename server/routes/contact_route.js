@@ -5,7 +5,7 @@ const path = require('path');
 const sgMail = require('@sendgrid/mail');
 const jwt = require('jsonwebtoken');
 const Contact = require('../models/contact');
-require('dotenv').config();
+//require('dotenv').config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

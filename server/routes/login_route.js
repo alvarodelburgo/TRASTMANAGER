@@ -11,7 +11,7 @@ const Owner = require('../models/owner');
 const Enterprise = require('../models/enterprise');
 const Administrator = require('../models/administrator');
 
-require('dotenv').config();
+//require('dotenv').config();
 
 
 const loginLimiter = rateLimit({

@@ -8,7 +8,7 @@ const Enterprise = require('../models/enterprise');
 const Owner = require('../models/owner');
 const cookieParser = require('cookie-parser');
 
-require('dotenv').config();
+//require('dotenv').config();
 
 router.use(cookieParser());
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);

@@ -6,7 +6,7 @@ const Owner = require('../models/owner');
 const Enterprise = require('../models/enterprise');
 const Administrator = require('../models/administrator');
 
-require('dotenv').config();
+//require('dotenv').config();
 
 
 router.get('/profile/:username', async (req, res) => {
