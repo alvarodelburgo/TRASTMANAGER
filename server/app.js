@@ -3,7 +3,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
-//const dotenv = require('dotenv');
+const dotenv = require('dotenv');
 const sendgrid = require('sendgrid');
 //require('dotenv').config();
 const http = require('http');

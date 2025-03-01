@@ -13,6 +13,34 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Crear un grupo de seguridad para la RDS
+resource "aws_security_group" "rds_sg" {
+  name        = "RDS-SG"
+  description = "Grupo de seguridad para la instancia RDS"
+
+  # Permitir conexiones desde las instancias EC2
+  ingress {
+    description      = "Permitir conexión a PostgreSQL desde EC2"
+    from_port        = 5432
+    to_port          = 5432
+    protocol         = "tcp"
+    security_groups  = [aws_security_group.ec2_sg.id]  # Reemplazar con el ID del grupo de seguridad de EC2
+  }
+
+  # Salida para todo el tráfico
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "RDS-SG"
+  }
+}
+
+
 # Crear un grupo de seguridad para la instancia EC2
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.instance_name}-sg"
@@ -200,13 +228,13 @@ resource "aws_lb_target_group" "app_target_group" {
 resource "aws_lb_target_group_attachment" "ec2_instance_1_attachment" {
   target_group_arn = aws_lb_target_group.app_target_group.arn
   target_id        = aws_instance.ec2_instance_1.id
-  port             = 80
+  port             = 5000
 }
 
 resource "aws_lb_target_group_attachment" "ec2_instance_2_attachment" {
   target_group_arn = aws_lb_target_group.app_target_group.arn
   target_id        = aws_instance.ec2_instance_2.id
-  port             = 80
+  port             = 5000
 }
 
 # 4. Configuración del listener HTTPS
@@ -226,7 +254,7 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-# 5. Crear un listener HTTP (puerto 80) y redirigir a HTTPS
+# 5. Crear un listener HTTP (puerto 5000) y redirigir a HTTPS
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = 5000
