@@ -20,7 +20,7 @@ resource "aws_security_group" "rds_sg" {
 
   # Permitir conexiones desde las instancias EC2
   ingress {
-    description      = "Permitir conexión a PostgreSQL desde EC2"
+    description      = "Permitir conexion a PostgreSQL desde EC2"
     from_port        = 5432
     to_port          = 5432
     protocol         = "tcp"
@@ -207,7 +207,7 @@ resource "aws_security_group" "lb_sg" {
 # 2. Crear un Target Group para el ALB
 resource "aws_lb_target_group" "app_target_group" {
   name     = "app-target-group"
-  port     = 80
+  port     = 5000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
@@ -254,10 +254,10 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-# 5. Crear un listener HTTP (puerto 5000) y redirigir a HTTPS
+# 5. Crear un listener HTTP (puerto 80) y redirigir a HTTPS
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
-  port              = 5000
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
