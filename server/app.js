@@ -13,15 +13,36 @@ const { registerUser, unregisterUser } = require('./socketManager');
 // CARGAR LAS VARIABLES DE ENTORNO
 dotenv.config();
 
-const app = express();
-const server = http.createServer(app); // Crear servidor HTTP
-initSocket(server); // Inicializar Socket.IO
+// Configura las opciones de CORS
+const corsOptions = {
+  origin: ['https://trastmanager.com', 'https://www.trastmanager.com'],
+  methods: ['GET', 'POST', 'DELETE'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
+const app = express();
+app.set('trust proxy', 1);
+const server = http.createServer(app); // Crear servidor HTTP
+initSocket(server, corsOptions);
+
+// Aplica CORS a Express
+app.use(cors(corsOptions));
 const io = getSocket();
 
 
+app.use('/assets/uploads', express.static(path.join(__dirname, '../assets/uploads')));
+
+// Servir todos los archivos estáticos de la carpeta 'client/assets/offer_images'
+app.use('/assets/offer_images', express.static(path.join(__dirname, 'client/assets/offer_images')));
+
 // ARCHIVOS ESTÁTICOS DE REACT (ajustar la ruta según la estructura de tu proyecto)
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, '../client'), {
+  etag: false,
+  lastModified: false,
+  cacheControl: false
+}));
+
 
 // CONFIGURACIÓN DE EXPRES SESSION
 app.use(session({

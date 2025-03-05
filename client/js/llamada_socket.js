@@ -1,5 +1,7 @@
-const socket = io();
-
+const socket = io("wss://trastmanager.com", {
+    transports: ["websocket", "polling"],
+});
+  
 async function token_user() {
             
     // Obtener datos del usuario desde el servidor

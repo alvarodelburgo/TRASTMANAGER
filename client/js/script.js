@@ -81,8 +81,17 @@ async function cargarImagenDePerfil() {
             throw new Error('Rol de usuario desconocido');
         }
 
+        if (!profile_image) {
+            console.error("No se encontró la imagen de perfil.");
+            return;
+        }
+        
+        const baseUrl = "/assets/uploads/";
+        const imageUrl = profile_image.startsWith("https") ? profile_image : `${baseUrl}${profile_image}`;
+        
         const profileImageDiv = document.getElementById('profile-image');
-        profileImageDiv.innerHTML = `<a href="/profile/${username}"><img src="${profile_image}" alt="Imagen de perfil" class="profile-img"></a>`;
+        profileImageDiv.innerHTML = `<a href="/profile/${username}"><img src="${imageUrl}" alt="Imagen de perfil" class="profile-img"></a>`;
+        
 
     } catch (error) {
         console.error('Error al cargar la imagen de perfil:', error.message);
