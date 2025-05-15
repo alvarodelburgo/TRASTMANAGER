@@ -84,6 +84,7 @@ jobs:
             -var "subnet_id_2=${{ secrets.EC2_SUBNET_ID_2 }}" \
             -var "acm_certificate_arn=${{ secrets.ARN }}" \
             -var "vpc_id=${{ secrets.VPC_ID }}" \
+            -var "vpc_id=${{ secrets.MY_IP }}" \
             -out=tfplan
 
       - name: Terraform Apply
