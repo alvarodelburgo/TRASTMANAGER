@@ -13,34 +13,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Crear un grupo de seguridad para la RDS
-resource "aws_security_group" "rds_sg" {
-  name        = "RDS-SG"
-  description = "Grupo de seguridad para la instancia RDS"
-
-  # Permitir conexiones desde las instancias EC2
-  ingress {
-    description      = "Permitir conexion a PostgreSQL desde EC2"
-    from_port        = 5432
-    to_port          = 5432
-    protocol         = "tcp"
-    security_groups  = [aws_security_group.ec2_sg.id]  # Reemplazar con el ID del grupo de seguridad de EC2
-  }
-
-  # Salida para todo el tráfico
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "RDS-SG"
-  }
-}
-
-
 # Crear un grupo de seguridad para la instancia EC2
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.instance_name}-sg"
@@ -94,6 +66,43 @@ resource "aws_security_group" "ec2_sg" {
     Name = "${var.instance_name}-sg"
   }
 }
+
+# Crear un grupo de seguridad para la RDS
+resource "aws_security_group" "rds_sg" {
+  name        = "RDS-SG"
+  description = "Grupo de seguridad para la instancia RDS"
+
+  # Permitir conexiones desde las instancias EC2
+  ingress {
+    description      = "Permitir conexion a PostgreSQL desde EC2"
+    from_port        = 5432
+    to_port          = 5432
+    protocol         = "tcp"
+    security_groups  = [aws_security_group.ec2_sg.id]  # Reemplazar con el ID del grupo de seguridad de EC2
+  }
+
+  # Permitir conexiones desde mi IP
+  ingress {
+    description = "Permitir conexion a PostgreSQL desde mi IP"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  # Salida para todo el tráfico
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "RDS-SG"
+  }
+}
+
 
 # Crear dos instancias EC2
 resource "aws_instance" "ec2_instance_1" {

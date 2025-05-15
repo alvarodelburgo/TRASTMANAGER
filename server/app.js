@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const sendgrid = require('sendgrid');
-//require('dotenv').config();
+require('dotenv').config();
 const http = require('http');
 const { initSocket, getSocket } = require('./socket');
 const { registerUser, unregisterUser } = require('./socketManager');

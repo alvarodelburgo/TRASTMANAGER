@@ -47,3 +47,8 @@ variable "acm_certificate_arn" {
   description = "ARN del certificado SSL de ACM"
   type        = string
 }
+
+variable "my_ip" {
+  description = "Mi dirección IP pública para acceso a RDS"
+  type        = string
+}

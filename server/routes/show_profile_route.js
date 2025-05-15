@@ -43,7 +43,7 @@ router.get('/profile/:username', async (req, res) => {
         }
 
         const roleToken = jwt.sign({ userID, role, viewing }, process.env.JWT_SECRET);
-        res.cookie('roleToken', roleToken, { httpOnly: true, sameSite: 'Strict' });/*secure: false,*/
+        res.cookie('roleToken', roleToken, { httpOnly: true, sameSite: 'Strict', secure: true}); /*httpOnly: true, sameSite: 'Strict', secure: false,*/
         res.sendFile(path.join(__dirname, '../../client/html', 'profile.html'));
 
     } catch (error) {
