@@ -13,6 +13,36 @@ provider "aws" {
   region = var.aws_region
 }
 
+
+# Crear dos instancias EC2
+resource "aws_instance" "ec2_instance_1" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  key_name               = var.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  subnet_id              = var.subnet_id
+
+  tags = {
+    Name        = "${var.instance_name}-1"
+    Environment = "Production"
+    Project     = "TrastManager"
+  }
+
+  # Esperar a que la instancia esté completamente lista
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Instancia EC2 lista!'"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu" # Ajusta el usuario según la AMI
+      private_key = file(var.ssh_private_key_path)
+      host        = self.public_ip
+    }
+  }
+}
+
 # Crear un grupo de seguridad para la instancia EC2
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.instance_name}-sg"
@@ -67,6 +97,33 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+resource "aws_instance" "ec2_instance_2" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  key_name               = var.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  subnet_id              = var.subnet_id
+  tags = {
+    Name        = "${var.instance_name}-2"
+    Environment = "Production"
+    Project     = "TrastManager"
+  }
+
+  # Esperar a que la instancia esté completamente lista
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Instancia EC2 2 lista!'"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu" # Ajusta el usuario según la AMI
+      private_key = file(var.ssh_private_key_path)
+      host        = self.public_ip
+    }
+  }
+}
+
+
 # Crear un grupo de seguridad para la RDS
 resource "aws_security_group" "rds_sg" {
   name        = "RDS-SG"
@@ -100,62 +157,6 @@ resource "aws_security_group" "rds_sg" {
 
   tags = {
     Name = "RDS-SG"
-  }
-}
-
-
-# Crear dos instancias EC2
-resource "aws_instance" "ec2_instance_1" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  subnet_id              = var.subnet_id
-
-  tags = {
-    Name        = "${var.instance_name}-1"
-    Environment = "Production"
-    Project     = "TrastManager"
-  }
-
-  # Esperar a que la instancia esté completamente lista
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Instancia EC2 lista!'"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu" # Ajusta el usuario según la AMI
-      private_key = file(var.ssh_private_key_path)
-      host        = self.public_ip
-    }
-  }
-}
-
-resource "aws_instance" "ec2_instance_2" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  subnet_id              = var.subnet_id
-  tags = {
-    Name        = "${var.instance_name}-2"
-    Environment = "Production"
-    Project     = "TrastManager"
-  }
-
-  # Esperar a que la instancia esté completamente lista
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Instancia EC2 2 lista!'"
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ubuntu" # Ajusta el usuario según la AMI
-      private_key = file(var.ssh_private_key_path)
-      host        = self.public_ip
-    }
   }
 }
 
